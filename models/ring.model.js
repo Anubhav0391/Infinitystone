@@ -1,12 +1,12 @@
 const mongoose = require("mongoose");
 
 const ringSchema = mongoose.Schema({
-  imageurl: String,
-  image: String,
-  price: Number,
-  originalprice: Number,
-  title: String,
-  size:Number
+  imageurl:{type: String,required:true},
+  image:{type: String,required:true},
+  price:{type: Number,required:true},
+  originalprice:{type: Number,required:true},
+  title:{type: String,required:true},
+  size:{type: Number,required:true},
 });
 
 const RingModel = mongoose.model("ring", ringSchema);
