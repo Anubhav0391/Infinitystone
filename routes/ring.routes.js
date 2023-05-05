@@ -44,9 +44,8 @@ ringRouter.get("/", async (req, res) => {
 });
 
 ringRouter.get("/:id", async (req, res) => {
-    const id = req.params.id;
     try {
-        const ring=await RingModel.findOne({_id:id})
+        const ring=await RingModel.findOne({_id:req.params.id})
         res.status(200).send(ring);
     } catch (err) {
         res.status(400).send({"err":err.message});
@@ -77,7 +76,7 @@ ringRouter.delete("/delete/:id", async (req, res) => {
   const id = req.params.id;
   try {
     await RingModel.findByIdAndDelete({_id:id});
-    res.status(200).send({ "msg": "Product updated successfully" });
+    res.status(200).send({ "msg": "Product deleted successfully" });
   } catch (err) {
     res.status(400).send({ "msg": err.message });
   }

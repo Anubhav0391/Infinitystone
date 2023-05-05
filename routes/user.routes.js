@@ -5,6 +5,24 @@ const UserModel = require("../models/user.model");
 
 const userRouter = express.Router();
 
+userRouter.get("/", async (req, res) => {
+  try {
+    const users=await UserModel.find(req.query);
+    res.status(200).send(users);
+  } catch (err) {
+    res.status(400).send({"err":err.message});
+  }
+});
+
+userRouter.get("/:id", async (req, res) => {
+  try {
+      const user=await UserModel.findOne({_id:req.params.id})
+      res.status(200).send(user);
+  } catch (err) {
+      res.status(400).send({"err":err.message});
+  }
+});
+
 userRouter.post("/register", async (req, res) => {
   const { name, email, gender, password} = req.body;
 
