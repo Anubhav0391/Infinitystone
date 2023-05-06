@@ -76,4 +76,34 @@ userRouter.post("/login", async (req, res) => {
   }
 });
 
+userRouter.patch("/update/:id", async (req, res) => {
+  const id = req.params.id;
+
+  try {
+    if(req.body.password){
+      bcrypt.hash(req.body.password, 5, async (err, hash) => {
+        req.body.password=hash;
+        await UserModel.findByIdAndUpdate({_id:id}, req.body);
+        res.status(200).send({ "msg": "User updated successfully"});
+      });
+    }else{
+      await UserModel.findByIdAndUpdate({_id:id}, req.body);
+      res.status(200).send({ "msg": "User updated successfully"});
+    }
+
+  } catch (err) {
+    res.status(400).send({ "msg": err.message });
+  }
+});
+
+userRouter.delete("/delete/:id", async (req, res) => {
+  const id = req.params.id;
+  try {
+    await UserModel.findByIdAndDelete({_id:id});
+    res.status(200).send({ "msg": "User deleted successfully" });
+  } catch (err) {
+    res.status(400).send({ "msg": err.message });
+  }
+});
+
 module.exports = userRouter;
