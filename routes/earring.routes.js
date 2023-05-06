@@ -11,9 +11,9 @@ earringRouter.get("/", async (req, res) => {
     sort=-1;
   }
 
-  let sortType=req.query.type
+  let type=req.query.type
   let sortObj={};
-  sortObj[sortType]=sort;
+  sortObj[type]=sort;
 
   page= +req.query.page;
   limit= +req.query.limit;
