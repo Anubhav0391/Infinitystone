@@ -4,7 +4,7 @@ const cartRouter = express.Router();
 
 cartRouter.get("/", async (req, res) => {
     try {
-        const Cart=await CartModel.find()
+        const Cart=await CartModel.find({userId:req.body.userId})
         res.status(200).send(Cart);
     } catch (err) {
         res.status(400).send({"err":err.message});

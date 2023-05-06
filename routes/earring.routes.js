@@ -1,35 +1,44 @@
 const express = require("express");
 const EarringModel = require("../models/earring.model");
+const { adminAuth } = require("../middlewares/authorization");
 const earringRouter = express.Router();
 
 earringRouter.get("/", async (req, res) => {
-  let sort,page,limit,earrings;
-  
-  if(req.query.sort==="asc"){
-    sort=1;
-  }else if(req.query.sort==="desc"){
-    sort=-1;
-  }
-
-  let type=req.query.type
-  let sortObj={};
-  sortObj[type]=sort;
-
-  page= +req.query.page;
-  limit= +req.query.limit;
-
-  delete req.query.sort;
-  
-  delete req.query.type;
-  delete req.query.page;
-  delete req.query.limit;
-
-  try {
-    if(sort&&type){
-      earrings=await EarringModel.find(req.query).sort(sortObj);
-    }else{
-      earrings=await EarringModel.find(req.query);
+  let sort,page,limit,from,till,earrings;
+    
+    if(req.query.sort==="asc"){
+      sort=1;
+    }else if(req.query.sort==="desc"){
+      sort=-1;
     }
+
+    let type=req.query.type
+    let sortObj={};
+    sortObj[type]=sort;
+
+    page= +req.query.page;
+    limit= +req.query.limit;
+
+    from= +req.query.from;
+    till= +req.query.till;
+
+    delete req.query.sort;
+    delete req.query.type;
+    delete req.query.page;
+    delete req.query.limit;
+    delete req.query.from;
+    delete req.query.till;
+
+    try {
+      if(sort && type && from>0 && till>0){
+        earrings=await EarringModel.find({$and:[req.query,{$and:[{price: {$gte: from}},{price: {$lte: till}}]}]}).sort(sortObj);;
+      }else if(from>0 && till>0){
+        earrings=await EarringModel.find({$and:[req.query,{$and:[{price: {$gte: from}},{price: {$lte: till}}]}]});
+      }else if(sort && type){
+        earrings=await EarringModel.find(req.query).sort(sortObj);
+      }else{
+        earrings=await EarringModel.find(req.query)
+      }
 
     if(page>0 && limit>0){
       earrings=earrings.slice((page-1) * limit, page * limit)
@@ -52,6 +61,8 @@ earringRouter.get("/:id", async (req, res) => {
         res.status(400).send({"err":err.message});
     }
 });
+
+earringRouter.use(adminAuth);
 
 earringRouter.post("/add", async (req, res) => {
   try {

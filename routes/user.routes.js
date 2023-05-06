@@ -2,26 +2,9 @@ const express = require("express");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const UserModel = require("../models/user.model");
+const { adminAuth } = require("../middlewares/authorization");
 
 const userRouter = express.Router();
-
-userRouter.get("/", async (req, res) => {
-  try {
-    const users=await UserModel.find(req.query);
-    res.status(200).send(users);
-  } catch (err) {
-    res.status(400).send({"err":err.message});
-  }
-});
-
-userRouter.get("/:id", async (req, res) => {
-  try {
-      const user=await UserModel.findOne({_id:req.params.id})
-      res.status(200).send(user);
-  } catch (err) {
-      res.status(400).send({"err":err.message});
-  }
-});
 
 userRouter.post("/register", async (req, res) => {
   const { name, email, gender, password} = req.body;
@@ -31,8 +14,8 @@ userRouter.post("/register", async (req, res) => {
       if (err) {
         res.status(400).send({"err":err})
       } else {
-        const existing = await UserModel.findOne({ email: email });
-        if (existing) {
+        const existing = await UserModel.findOne({ email });
+        if (existing||email==='dixit@admin.com') {
           res.status(200).send({ "msg": "User already exist" });
         } else {
           let user = new UserModel({
@@ -51,13 +34,13 @@ userRouter.post("/register", async (req, res) => {
   }
 });
 
-
 userRouter.post("/login", async (req, res) => {
   const { email, password } = req.body;
+
   try {
-    const user = await UserModel.findOne({ email: email });
+    const user = await UserModel.findOne({ email });
     if (user) {
-      bcrypt.compare(password, user.password, (err, result) => {
+      bcrypt.compare(password, user.password, (_, result) => {
         if (result) {
           const token = jwt.sign({ userId: user._id, user:user.name }, process.env.key);
           res.status(200).send({
@@ -68,11 +51,38 @@ userRouter.post("/login", async (req, res) => {
           res.status(200).send({ "msg": "Wrong Password" });
         }
       });
-    } else {
+    } else if(email==="dixit@admin.com",password==='dixit'){
+      const token = jwt.sign({payload:"admin"}, process.env.key);
+      res.status(200).send({
+        "msg": `Welcome Admin !`,
+        "admin":true,
+        "token": token,
+      });
+    }else {
       res.status(200).send({ "msg": `${email} does not exist.` });
     }
   } catch (err) {
     res.status(400).send({ "err": err.message });
+  }
+});
+
+userRouter.use(adminAuth);
+
+userRouter.get("/", async (req, res) => {
+  try {
+    const users=await UserModel.find(req.query);
+    res.status(200).send(users);
+  } catch (err) {
+    res.status(400).send({"err":err.message});
+  }
+});
+
+userRouter.get("/:id", async (req, res) => {
+  try {
+      const user=await UserModel.findOne({_id:req.params.id})
+      res.status(200).send(user);
+  } catch (err) {
+      res.status(400).send({"err":err.message});
   }
 });
 

@@ -1,9 +1,10 @@
 const express = require("express");
 const RingModel = require("../models/ring.model");
+const { adminAuth } = require("../middlewares/authorization");
 const ringRouter = express.Router();
 
 ringRouter.get("/", async (req, res) => {
-    let sort,page,limit,rings;
+    let sort,page,limit,from,till,rings;
     
     if(req.query.sort==="asc"){
       sort=1;
@@ -18,17 +19,25 @@ ringRouter.get("/", async (req, res) => {
     page= +req.query.page;
     limit= +req.query.limit;
 
+    from= +req.query.from;
+    till= +req.query.till;
+
     delete req.query.sort;
-    
     delete req.query.type;
     delete req.query.page;
     delete req.query.limit;
+    delete req.query.from;
+    delete req.query.till;
 
     try {
-      if(sort&&type){
+      if(sort && type && from>0 && till>0){
+        rings=await RingModel.find({$and:[req.query,{$and:[{price: {$gte: from}},{price: {$lte: till}}]}]}).sort(sortObj);;
+      }else if(from>0 && till>0){
+        rings=await RingModel.find({$and:[req.query,{$and:[{price: {$gte: from}},{price: {$lte: till}}]}]});
+      }else if(sort && type){
         rings=await RingModel.find(req.query).sort(sortObj);
       }else{
-        rings=await RingModel.find(req.query);
+        rings=await RingModel.find(req.query)
       }
 
       if(page>0 && limit>0){
@@ -51,6 +60,8 @@ ringRouter.get("/:id", async (req, res) => {
         res.status(400).send({"err":err.message});
     }
 });
+
+ringRouter.use(adminAuth);
 
 ringRouter.post("/add", async (req, res) => {
   try {
