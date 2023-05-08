@@ -41,7 +41,7 @@ earringRouter.get("/", async (req, res) => {
       }
 
     if(page>0 && limit>0){
-      pages=Math.ceil(rings.length/limit);
+      pages=Math.ceil(earrings.length/limit);
       earrings=earrings.slice((page-1) * limit, page * limit)
     }else if(page<0 || limit<0){
       earrings=[];
