@@ -18,10 +18,10 @@ app.get("/", (req, res) => {
       <h1 style="text-align:center;margin:50px;">Train Seats Reservation API</h1>
     </u>
     <h2 style="text-align:center;margin:50px;">
-      GET : <a href="https://tiny-rose-rabbit-robe.cyclic.app/seats"> /seats</a>
+      GET : <p> /seats</p>
     </h2>
     <h2 style="text-align:center;margin:50px;">
-      PATCH : <a href="https://tiny-rose-rabbit-robe.cyclic.app/seats/reserve"> /seats/reserve</a>
+      PATCH : <p> /seats/reserve</p>
     </h2>
     <h2 style="text-align:center;margin-left:-500px;" >Instructions :- </h2>
     <h3 style="width:fit-content;margin:auto">
